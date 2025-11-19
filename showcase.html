@@ -3,39 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pera 3D Showcase Viewer - KESİN ÇÖZÜM</title>
-    </head>
+    <title>Pera 3D Showcase Viewer - NİHAİ ÇÖZÜM</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #f0f0f0; font-family: sans-serif; }
+        canvas { display: block; }
+        #info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            z-index: 10; 
+        }
+    </style>
+</head>
 <body>
     <div id="info">Proje Adı: Son Test | Bayi: Pera 3D [Şube]</div>
 <script type="module">
-    // Dosya isimlerinize ve DÜZ DİZİNE göre güncellendi.
-    // Dizin aynı olduğu için sadece './' (mevcut klasör) kullanıldı.
+    // Hata veren importmap bloğu tamamen KALDIRILDI.
+    // Tüm importlar './' ile başlayarak doğru yolu gösterir.
     
-    import * as THREE from './three.module.js'; // THREE çekirdek dosyanızın adı
+    // Yüklü Dosya Adlarınız: three.module.js, GLTFLoader.js, OrbitControls.js, RGBELoader.js
+    import * as THREE from './three.module.js';
     import { GLTFLoader } from './GLTFLoader.js';
     import { OrbitControls } from './OrbitControls.js';
     import { RGBELoader } from './RGBELoader.js';
 
     let scene, camera, renderer, controls;
     
-    // Model ve Işık yerel dosya yolları (assets/ kaldırıldı)
+    // Model ve Işık yerel dosya yolları
     const modelUrl = 'DamagedHelmet.gltf'; 
     const hdriUrl = 'venice_sunset_1k.hdr';
 
     function init() {
-        // Hata kontrolü gereksiz çünkü THREE artık yüklenmek ZORUNDA.
-        
-        // ... Kalan init() fonksiyon içeriği önceki mesajdakiyle aynı kalacak. ...
-        // (scene, camera, renderer, controls, light, loader kısımları)
-        
-        // Bu kısım, hata mesajını göstermek için önceki kodumuzdan geliyor.
-        // Eğer her şey yolunda giderse, bu satır zaten çalışmayacaktır.
+        // Kontrol: Eğer THREE tanımlı değilse, dosya adlarında (büyük/küçük harf) bir sorun var demektir.
         if (typeof THREE === 'undefined') {
-            document.getElementById('info').innerHTML = 'HATA: THREE tanımlanamadı. Dosya isimlerini kontrol edin.';
-            console.error("THREE is not defined, stopping initialization.");
+            document.getElementById('info').innerHTML = 'HATA: THREE çekirdek yüklenemedi. Dosya adlarını (three.module.js) kontrol edin.';
+            console.error("THREE is not defined, check file names.");
             return; 
         }
-        
+
         // --- Sahne (Scene) Kurulumu ---
         scene = new THREE.Scene();
 
@@ -64,7 +73,7 @@
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
             scene.background = new THREE.Color(0xf0f0f0); 
-            render();
+            // Model yüklendikten sonra render'ı tetiklemek için burada render çağrısı yapmıyoruz.
         });
 
         // --- Model Yükleyici ---
@@ -83,7 +92,9 @@
                 camera.position.set(center.x, center.y, center.z + size.length() * 0.8);
                 controls.target.copy(center);
                 controls.update();
-                render();
+                
+                // İlk başarılı yükleme render'ı
+                renderer.render(scene, camera);
             },
             (xhr) => {
                 console.log( ( xhr.loaded / xhr.total * 100 ) + '% yüklendi' );
@@ -97,18 +108,19 @@
         window.addEventListener('resize', onWindowResize);
     }
     
-    // Kalan fonksiyonlar aynı kalacak
+    // Yeniden boyutlandırma
     function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.render(scene, camera); // render() yerine direk render çağrısı
     }
 
+    // Animasyon döngüsü
     function animate() {
         requestAnimationFrame(animate);
-        if (controls) controls.update(); // Kontrol ekledik
-        renderer.render(scene, camera); // render() yerine direk render çağrısı
+        // Controls'un init'te tanımlandığından emin olmak için kontrol ekledik.
+        if (controls) controls.update(); 
+        if (renderer) renderer.render(scene, camera);
     }
 
     init();
