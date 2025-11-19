@@ -22,25 +22,22 @@
 <body>
     <div id="info">Proje Adı: Son Test | Bayi: Pera 3D [Şube]</div>
 <script type="module">
-    // Hata veren importmap bloğu tamamen KALDIRILDI.
-    // Tüm importlar './' ile başlayarak doğru yolu gösterir.
-    
-    // Yüklü Dosya Adlarınız: three.module.js, GLTFLoader.js, OrbitControls.js, RGBELoader.js
-    import * as THREE from 'three.module.js';
-    import { GLTFLoader } from 'GLTFLoader.js';
-    import { OrbitControls } from 'OrbitControls.js';
-    import { RGBELoader } from 'RGBELoader.js';
+    // Düz dizin ve büyük/küçük harf uyumlu importlar
+    import * as THREE from './three.module.js';
+    import { GLTFLoader } from './GLTFLoader.js';
+    import { OrbitControls } from './OrbitControls.js';
+    import { RGBELoader } from './RGBELoader.js';
 
     let scene, camera, renderer, controls;
     
-    // Model ve Işık yerel dosya yolları
+    // Model ve Işık yerel dosya yolları (Dosya adlarını kontrol edin!)
     const modelUrl = 'DamagedHelmet.gltf'; 
     const hdriUrl = 'venice_sunset_1k.hdr';
 
     function init() {
-        // Kontrol: Eğer THREE tanımlı değilse, dosya adlarında (büyük/küçük harf) bir sorun var demektir.
+        // Modül yükleme başarılıysa bu kontrol gereksizdir, sadece güvenlik içindir.
         if (typeof THREE === 'undefined') {
-            document.getElementById('info').innerHTML = 'HATA: THREE çekirdek yüklenemedi. Dosya adlarını (three.module.js) kontrol edin.';
+            document.getElementById('info').innerHTML = 'HATA: THREE çekirdek yüklenemedi. Dosya adlarını kontrol edin.';
             console.error("THREE is not defined, check file names.");
             return; 
         }
@@ -63,6 +60,7 @@
         document.body.appendChild(renderer.domElement);
 
         // --- Kontroller (Controls) Kurulumu ---
+        // controls = new OrbitControls(...) tanımı, animate döngüsündeki hatayı çözer
         controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true; 
         controls.target.set(0, 0, 0); 
@@ -73,7 +71,6 @@
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
             scene.background = new THREE.Color(0xf0f0f0); 
-            // Model yüklendikten sonra render'ı tetiklemek için burada render çağrısı yapmıyoruz.
         });
 
         // --- Model Yükleyici ---
@@ -93,7 +90,6 @@
                 controls.target.copy(center);
                 controls.update();
                 
-                // İlk başarılı yükleme render'ı
                 renderer.render(scene, camera);
             },
             (xhr) => {
@@ -113,14 +109,14 @@
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        if (renderer && scene && camera) renderer.render(scene, camera);
     }
 
     // Animasyon döngüsü
     function animate() {
         requestAnimationFrame(animate);
-        // Controls'un init'te tanımlandığından emin olmak için kontrol ekledik.
         if (controls) controls.update(); 
-        if (renderer) renderer.render(scene, camera);
+        if (renderer && scene && camera) renderer.render(scene, camera);
     }
 
     init();
@@ -129,4 +125,3 @@
 </script>
 </body>
 </html>
-
