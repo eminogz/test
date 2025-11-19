@@ -3,40 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pera 3D Showcase Viewer - KESİN ÇÖZÜM (Düz Dizin)</title>
-    <style>
-        body { margin: 0; overflow: hidden; background-color: #f0f0f0; font-family: sans-serif; }
-        canvas { display: block; }
-        #info {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 8px;
-            border-radius: 4px;
-            z-index: 10; 
-        }
-    </style>
-    
-    <script type="importmap">
-        {
-            "imports": {
-                // three.module.js dosyasını doğrudan çekirdek olarak tanımlıyoruz
-                "three": "./three.module.js", 
-                // Eklentiler için klasör yolu yerine doğrudan dosya adını kullanıyoruz
-                "three/addons/": "./" 
-            }
-        }
-    </script>
-
-</head>
+    <title>Pera 3D Showcase Viewer - KESİN ÇÖZÜM</title>
+    </head>
 <body>
-    <div id="info">Proje Adı: Düz Dizin Testi | Bayi: Pera 3D [Şube]</div>
+    <div id="info">Proje Adı: Son Test | Bayi: Pera 3D [Şube]</div>
 <script type="module">
-    // Dosya isimlerinize uygun olarak import ediyoruz.
-    // Düz dizinde olduğumuz için klasör yolu yok.
-    import * as THREE from 'three';
+    // Dosya isimlerinize ve DÜZ DİZİNE göre güncellendi.
+    // Dizin aynı olduğu için sadece './' (mevcut klasör) kullanıldı.
+    
+    import * as THREE from './three.module.js'; // THREE çekirdek dosyanızın adı
     import { GLTFLoader } from './GLTFLoader.js';
     import { OrbitControls } from './OrbitControls.js';
     import { RGBELoader } from './RGBELoader.js';
@@ -48,6 +23,19 @@
     const hdriUrl = 'venice_sunset_1k.hdr';
 
     function init() {
+        // Hata kontrolü gereksiz çünkü THREE artık yüklenmek ZORUNDA.
+        
+        // ... Kalan init() fonksiyon içeriği önceki mesajdakiyle aynı kalacak. ...
+        // (scene, camera, renderer, controls, light, loader kısımları)
+        
+        // Bu kısım, hata mesajını göstermek için önceki kodumuzdan geliyor.
+        // Eğer her şey yolunda giderse, bu satır zaten çalışmayacaktır.
+        if (typeof THREE === 'undefined') {
+            document.getElementById('info').innerHTML = 'HATA: THREE tanımlanamadı. Dosya isimlerini kontrol edin.';
+            console.error("THREE is not defined, stopping initialization.");
+            return; 
+        }
+        
         // --- Sahne (Scene) Kurulumu ---
         scene = new THREE.Scene();
 
@@ -98,7 +86,6 @@
                 render();
             },
             (xhr) => {
-                // Yüklenme ilerlemesi
                 console.log( ( xhr.loaded / xhr.total * 100 ) + '% yüklendi' );
             },
             (error) => {
@@ -109,18 +96,19 @@
 
         window.addEventListener('resize', onWindowResize);
     }
-
+    
+    // Kalan fonksiyonlar aynı kalacak
     function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-        render();
+        renderer.render(scene, camera); // render() yerine direk render çağrısı
     }
 
     function animate() {
         requestAnimationFrame(animate);
-        controls.update(); 
-        render();
+        if (controls) controls.update(); // Kontrol ekledik
+        renderer.render(scene, camera); // render() yerine direk render çağrısı
     }
 
     init();
