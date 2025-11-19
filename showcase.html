@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pera 3D Showcase Viewer - KESİN ÇÖZÜM</title>
+    <title>Pera 3D Showcase Viewer - KESİN ÇÖZÜM (Düz Dizin)</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #f0f0f0; font-family: sans-serif; }
         canvas { display: block; }
@@ -15,35 +15,39 @@
             color: white;
             padding: 8px;
             border-radius: 4px;
-            z-index: 10; /* Üstte kalması için */
+            z-index: 10; 
         }
     </style>
     
-    <script src="https://unpkg.com/three@0.165.0/build/three.js"></script>
-    
-    <script src="https://unpkg.com/three@0.165.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://unpkg.com/three@0.165.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://unpkg.com/three@0.165.0/examples/js/loaders/RGBELoader.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                // three.module.js dosyasını doğrudan çekirdek olarak tanımlıyoruz
+                "three": "./three.module.js", 
+                // Eklentiler için klasör yolu yerine doğrudan dosya adını kullanıyoruz
+                "three/addons/": "./" 
+            }
+        }
+    </script>
 
 </head>
 <body>
-    <div id="info">Proje Adı: Kesin Çözüm Testi | Bayi: Pera 3D [Şube]</div>
-<script>
-    // THREE.js global olarak tanımlandığı için hata vermeyecektir.
-    
+    <div id="info">Proje Adı: Düz Dizin Testi | Bayi: Pera 3D [Şube]</div>
+<script type="module">
+    // Dosya isimlerinize uygun olarak import ediyoruz.
+    // Düz dizinde olduğumuz için klasör yolu yok.
+    import * as THREE from 'three';
+    import { GLTFLoader } from './GLTFLoader.js';
+    import { OrbitControls } from './OrbitControls.js';
+    import { RGBELoader } from './RGBELoader.js';
+
     let scene, camera, renderer, controls;
     
-    // Kesinlikle çalışan model linki
-    const modelUrl = 'https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf'; 
+    // Model ve Işık yerel dosya yolları (assets/ kaldırıldı)
+    const modelUrl = 'DamagedHelmet.gltf'; 
+    const hdriUrl = 'venice_sunset_1k.hdr';
 
     function init() {
-        // Kontrol: Eğer THREE tanımlı değilse, kütüphaneler yüklenememiştir.
-        if (typeof THREE === 'undefined') {
-            document.getElementById('info').innerHTML = 'HATA: Three.js çekirdeği yüklenemedi. Ağ (Network) sekmesini kontrol edin.';
-            console.error("THREE is not defined, stopping initialization.");
-            return; 
-        }
-
         // --- Sahne (Scene) Kurulumu ---
         scene = new THREE.Scene();
 
@@ -62,14 +66,13 @@
         document.body.appendChild(renderer.domElement);
 
         // --- Kontroller (Controls) Kurulumu ---
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true; 
         controls.target.set(0, 0, 0); 
         controls.update();
 
         // --- Işıklandırma (HDRI Environment) Kurulumu ---
-        // RGBELoader'ın globalde tanımlı olduğundan emin olunur.
-        new THREE.RGBELoader().load('https://threejs.org/examples/textures/equirectangular/venice_sunset_1k.hdr', (texture) => {
+        new RGBELoader().load(hdriUrl, (texture) => { 
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
             scene.background = new THREE.Color(0xf0f0f0); 
@@ -77,7 +80,7 @@
         });
 
         // --- Model Yükleyici ---
-        const loader = new THREE.GLTFLoader();
+        const loader = new GLTFLoader();
         loader.load(
             modelUrl,
             (gltf) => {
@@ -87,8 +90,9 @@
                 // Modeli ortalar ve kamerayı ayarlar
                 const bbox = new THREE.Box3().setFromObject(model);
                 const center = bbox.getCenter(new THREE.Vector3());
+                const size = bbox.getSize(new THREE.Vector3());
                 model.position.sub(center);
-                camera.position.set(center.x, center.y, center.z + bbox.getSize(new THREE.Vector3()).length() * 0.8);
+                camera.position.set(center.x, center.y, center.z + size.length() * 0.8);
                 controls.target.copy(center);
                 controls.update();
                 render();
@@ -119,7 +123,6 @@
         render();
     }
 
-    // Kodun çalışmaya başlama noktası
     init();
     animate();
 
