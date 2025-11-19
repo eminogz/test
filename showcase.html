@@ -3,32 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pera 3D Showcase Viewer - KESİN GLOBAL ÇÖZÜM</title>
+    <title>Pera 3D Showcase Viewer - MODÜLSÜZ GARANTİ ÇÖZÜM</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #f0f0f0; font-family: sans-serif; }
+        canvas { display: block; }
+        #info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            z-index: 10; 
+        }
+    </style>
+    
     <script src="three.js"></script>
     <script src="GLTFLoader.js"></script>
     <script src="OrbitControls.js"></script>
     <script src="RGBELoader.js"></script>
 </head>
 <body>
-    <div id="info">Proje Adı: GLOBAL ÇÖZÜM | Bayi: Pera 3D [Şube]</div>
+    <div id="info">Proje Adı: MODÜLSÜZ ÇÖZÜM | Bayi: Pera 3D [Şube]</div>
 <script>
-    // ARTIK type="module" YOK. THREE global olarak tanımlandı.
+    // THREE.js global olarak tanımlanır.
     
     let scene, camera, renderer, controls;
     
-    // Model ve Işık yerel dosya yolları
+    // Model ve Işık yerel dosya yolları (Modül sistemi hatalarıyla ilgisi yok)
     const modelUrl = 'DamagedHelmet.gltf'; 
     const hdriUrl = 'venice_sunset_1k.hdr';
 
     function init() {
+        // Kontrol: THREE'nin gerçekten globalde tanımlandığından emin olur.
+        if (typeof THREE === 'undefined') {
+            document.getElementById('info').innerHTML = 'HATA: three.js çekirdek dosyası bulunamadı. Lütfen dosya adını (three.js) ve yerini kontrol edin.';
+            console.error("THREE is not defined (Check your <script src> tags).");
+            return; 
+        }
+        
         // --- Sahne (Scene) Kurulumu ---
-        // THREE artık otomatik olarak globalde tanımlı olmalı
-        scene = new THREE.Scene(); 
+        scene = new THREE.Scene();
 
-        // --- Kamera, Renderer ve Kontrollerin Geri Kalanı... ---
+        // --- Kamera (Camera) Kurulumu ---
         camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 0, 3); 
 
+        // --- Render (Renderer) Kurulumu: Yüksek Kalite Ayarları ---
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -38,12 +60,15 @@
         renderer.setClearColor(0xf0f0f0);
         document.body.appendChild(renderer.domElement);
 
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // --- Kontroller (Controls) Kurulumu ---
+        // THREE.OrbitControls olarak çağrılır.
+        controls = new THREE.OrbitControls(camera, renderer.domElement); 
         controls.enableDamping = true; 
         controls.target.set(0, 0, 0); 
         controls.update();
 
         // --- Işıklandırma (HDRI Environment) Kurulumu ---
+        // THREE.RGBELoader olarak çağrılır.
         new THREE.RGBELoader().load(hdriUrl, (texture) => { 
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
@@ -51,7 +76,8 @@
         });
 
         // --- Model Yükleyici ---
-        const loader = new THREE.GLTFLoader();
+        // THREE.GLTFLoader olarak çağrılır.
+        const loader = new THREE.GLTFLoader(); 
         loader.load(
             modelUrl,
             (gltf) => {
