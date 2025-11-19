@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pera 3D Showcase Viewer - MODÜLSÜZ GARANTİ ÇÖZÜM</title>
+    <title>Pera 3D Showcase Viewer - CDN İLE GARANTİ ÇÖZÜM</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #f0f0f0; font-family: sans-serif; }
         canvas { display: block; }
@@ -19,27 +19,29 @@
         }
     </style>
     
-    <script src="three.module.js"></script>
-    <script src="GLTFLoader.js"></script>
-    <script src="OrbitControls.js"></script>
-    <script src="RGBELoader.js"></script>
+    <script src="https://unpkg.com/three@0.165.0/build/three.min.js"></script>
+    
+    <script src="https://unpkg.com/three@0.165.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.165.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://unpkg.com/three@0.165.0/examples/js/loaders/RGBELoader.js"></script>
+
 </head>
 <body>
-    <div id="info">Proje Adı: MODÜLSÜZ ÇÖZÜM | Bayi: Pera 3D [Şube]</div>
+    <div id="info">Proje Adı: CDN GARANTİ ÇÖZÜM | Bayi: Pera 3D [Şube]</div>
 <script>
     // THREE.js global olarak tanımlanır.
     
     let scene, camera, renderer, controls;
     
-    // Model ve Işık yerel dosya yolları (Modül sistemi hatalarıyla ilgisi yok)
+    // Model ve Işık yerel dosya yolları (Bunlar hala yereldir!)
     const modelUrl = 'DamagedHelmet.gltf'; 
     const hdriUrl = 'venice_sunset_1k.hdr';
 
     function init() {
-        // Kontrol: THREE'nin gerçekten globalde tanımlandığından emin olur.
+        // Kontrol: THREE'nin globalde tanımlandığından emin olur.
         if (typeof THREE === 'undefined') {
-            document.getElementById('info').innerHTML = 'HATA: three.js çekirdek dosyası bulunamadı. Lütfen dosya adını (three.js) ve yerini kontrol edin.';
-            console.error("THREE is not defined (Check your <script src> tags).");
+            document.getElementById('info').innerHTML = 'HATA: THREE (Çekirdek Kütüphane) yüklenemedi. CDN bağlantılarını kontrol edin.';
+            console.error("THREE is not defined (CDN FAILED).");
             return; 
         }
         
@@ -61,14 +63,12 @@
         document.body.appendChild(renderer.domElement);
 
         // --- Kontroller (Controls) Kurulumu ---
-        // THREE.OrbitControls olarak çağrılır.
         controls = new THREE.OrbitControls(camera, renderer.domElement); 
         controls.enableDamping = true; 
         controls.target.set(0, 0, 0); 
         controls.update();
 
         // --- Işıklandırma (HDRI Environment) Kurulumu ---
-        // THREE.RGBELoader olarak çağrılır.
         new THREE.RGBELoader().load(hdriUrl, (texture) => { 
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
@@ -76,7 +76,6 @@
         });
 
         // --- Model Yükleyici ---
-        // THREE.GLTFLoader olarak çağrılır.
         const loader = new THREE.GLTFLoader(); 
         loader.load(
             modelUrl,
@@ -125,4 +124,3 @@
 </script>
 </body>
 </html>
-
